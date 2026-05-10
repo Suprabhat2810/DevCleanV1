@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "ms-vscode.powershell",
+        "ms-dotnettools.csharp",
+        "ms-dotnettools.csdevkit",
+        "pkief.material-icon-theme",
+        "eamodio.gitlens",
+        "usernamehw.errorlens"
+    ]
+}

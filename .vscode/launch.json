@@ -1,0 +1,53 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "devclean scan",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/devclean.ps1",
+            "args": ["scan"],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "devclean cleanup --dry-run",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/devclean.ps1",
+            "args": ["cleanup", "--dry-run"],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "devclean cleanup --interactive",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/devclean.ps1",
+            "args": ["cleanup", "--interactive"],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "devclean analyze sdk",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/devclean.ps1",
+            "args": ["analyze", "sdk"],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "devclean analyze node",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/devclean.ps1",
+            "args": ["analyze", "node"],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "devclean help",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/devclean.ps1",
+            "args": ["help"],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
