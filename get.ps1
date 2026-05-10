@@ -1,165 +1,144 @@
 #!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-    DevClean — One-line remote installer.
-    Paste this in PowerShell to install DevClean from GitHub.
-
-USAGE (paste in any PowerShell terminal):
-    irm https://raw.githubusercontent.com/suprabhat/devclean/main/get.ps1 | iex
-
-WHAT THIS DOES:
-    1. Checks PowerShell 7+ is available
-    2. Downloads DevClean from GitHub
-    3. Installs to ~/.devclean
-    4. Adds devclean to your user PATH
-    5. Creates a devclean.cmd shim so it works from cmd.exe too
+    DevClean - One-line installer from GitHub Releases.
+USAGE:
+    irm https://github.com/Suprabhat2810/DevCleanV1/releases/latest/download/get.ps1 | iex
 #>
 
 Set-StrictMode -Off
 $ErrorActionPreference = "Stop"
 
+# Force UTF-8 so box characters display correctly on PS5.1
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$OutputEncoding = [System.Text.Encoding]::UTF8
+
 # ── Config ────────────────────────────────────────────────────────────────────
-$REPO_OWNER  = "suprabhat"
-$REPO_NAME   = "devclean"
-$BRANCH      = "main"
-$INSTALL_DIR = Join-Path $env:USERPROFILE ".devclean"
-$GITHUB_BASE = "https://raw.githubusercontent.com/$REPO_OWNER/$REPO_NAME/$BRANCH"
+$GITHUB_USER  = "Suprabhat2810"
+$REPO_NAME    = "DevCleanV1"
+$EXE_NAME     = "devclean.exe"
+$INSTALL_DIR  = Join-Path $env:USERPROFILE ".devclean"
+$INSTALL_PATH = Join-Path $INSTALL_DIR $EXE_NAME
+$DOWNLOAD_URL = "https://github.com/$GITHUB_USER/$REPO_NAME/releases/latest/download/$EXE_NAME"
 
 # ── Banner ────────────────────────────────────────────────────────────────────
 Write-Host ""
-Write-Host "  ╔════════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host "  ║     DevClean — Remote Installer        ║" -ForegroundColor Cyan
-Write-Host "  ║     Developed by Suprabhat Chowhan     ║" -ForegroundColor Cyan
-Write-Host "  ╚════════════════════════════════════════╝" -ForegroundColor Cyan
+Write-Host "  +----------------------------------------+" -ForegroundColor Cyan
+Write-Host "  |        DevClean Installer              |" -ForegroundColor Cyan
+Write-Host "  |   Developed by Suprabhat Chowhan       |" -ForegroundColor Cyan
+Write-Host "  +----------------------------------------+" -ForegroundColor Cyan
 Write-Host ""
 
-# ── Pre-flight: Check PowerShell version ─────────────────────────────────────
-$psVersion = $PSVersionTable.PSVersion
-if ($psVersion.Major -lt 7) {
-    Write-Host "  ✗  PowerShell 7+ is required." -ForegroundColor Red
-    Write-Host "     You have: PowerShell $($psVersion.Major).$($psVersion.Minor)" -ForegroundColor Red
+# ── Pre-flight: warn PS5.1 users ──────────────────────────────────────────────
+$psVer = $PSVersionTable.PSVersion
+Write-Host "  [CHECK] PowerShell $($psVer.Major).$($psVer.Minor) detected" -ForegroundColor Cyan
+
+if ($psVer.Major -lt 7) {
     Write-Host ""
-    Write-Host "  Install PowerShell 7 with:" -ForegroundColor Yellow
-    Write-Host "  winget install Microsoft.PowerShell" -ForegroundColor Cyan
-    Write-Host "  Then re-run this installer in a 'pwsh' terminal." -ForegroundColor Gray
+    Write-Host "  [WARNING] You are using PowerShell $($psVer.Major).$($psVer.Minor)" -ForegroundColor Yellow
+    Write-Host "  DevClean works best on PowerShell 7+." -ForegroundColor Yellow
+    Write-Host "  Install it for the best experience:" -ForegroundColor Yellow
+    Write-Host "    winget install Microsoft.PowerShell" -ForegroundColor Cyan
     Write-Host ""
+    Write-Host "  Continuing install on PS $($psVer.Major).$($psVer.Minor)..." -ForegroundColor Gray
+    Write-Host ""
+}
+
+# ── Windows check ─────────────────────────────────────────────────────────────
+if ($PSVersionTable.PSVersion.Major -ge 6 -and -not $IsWindows) {
+    Write-Host "  [ERROR] DevClean is Windows-only." -ForegroundColor Red
     exit 1
 }
-Write-Host "  ✓  PowerShell $($psVersion.Major).$($psVersion.Minor) detected" -ForegroundColor Green
+Write-Host "  [CHECK] Windows detected" -ForegroundColor Cyan
 
-# ── Pre-flight: Check internet ────────────────────────────────────────────────
+# ── Internet check ────────────────────────────────────────────────────────────
 try {
-    $null = Invoke-WebRequest -Uri "https://github.com" -UseBasicParsing -TimeoutSec 5 -ErrorAction Stop
-    Write-Host "  ✓  Internet connection OK" -ForegroundColor Green
+    $null = Invoke-WebRequest -Uri "https://github.com" -UseBasicParsing -TimeoutSec 8 -ErrorAction Stop
+    Write-Host "  [CHECK] Internet connection OK" -ForegroundColor Cyan
 } catch {
-    Write-Host "  ✗  No internet connection. Cannot reach GitHub." -ForegroundColor Red
+    Write-Host "  [ERROR] Cannot reach GitHub. Check your internet connection." -ForegroundColor Red
     exit 1
 }
 
-# ── Full file list to download ────────────────────────────────────────────────
-$files = @(
-    "devclean.ps1",
-    "devclean.psd1",
-    "src/ui/Show-Banner.ps1",
-    "src/ui/Show-Progress.ps1",
-    "src/ui/Show-ScanTable.ps1",
-    "src/ui/Show-EducationalNote.ps1",
-    "src/ui/Show-RiskLabel.ps1",
-    "src/scanner/Scan-Chrome.ps1",
-    "src/scanner/Scan-Browsers.ps1",
-    "src/scanner/Scan-NodeModules.ps1",
-    "src/scanner/Scan-Gradle.ps1",
-    "src/scanner/Scan-AndroidSdk.ps1",
-    "src/scanner/Scan-WindowsTemp.ps1",
-    "src/analyzer/Analyze-NodeModules.ps1",
-    "src/analyzer/Analyze-AndroidSdk.ps1",
-    "src/cleanup/Invoke-Cleanup.ps1",
-    "src/cleanup/Send-ToRecycleBin.ps1",
-    "src/logs/Write-CleanupLog.ps1",
-    "src/utils/Get-FolderSize.ps1",
-    "src/utils/Format-FileSize.ps1"
-)
-
-# ── Create install directory tree ─────────────────────────────────────────────
+# ── Create install directory ──────────────────────────────────────────────────
 Write-Host ""
-Write-Host "  Installing to: $INSTALL_DIR" -ForegroundColor Gray
-Write-Host ""
-
-$subDirs = @("src\ui","src\scanner","src\analyzer","src\cleanup","src\logs","src\utils","lib")
-foreach ($d in $subDirs) {
-    $fullD = Join-Path $INSTALL_DIR $d
-    if (-not (Test-Path $fullD)) { New-Item -ItemType Directory -Path $fullD -Force | Out-Null }
+Write-Host "  Install location: $INSTALL_DIR" -ForegroundColor Gray
+if (-not (Test-Path $INSTALL_DIR)) {
+    New-Item -ItemType Directory -Path $INSTALL_DIR -Force | Out-Null
 }
 
-# ── Download each file ────────────────────────────────────────────────────────
-$downloaded = 0
-$failed     = 0
-
-foreach ($file in $files) {
-    $url      = "$GITHUB_BASE/$file"
-    $destFile = $file -replace "/", "\"
-    $destPath = Join-Path $INSTALL_DIR $destFile
-
-    try {
-        Invoke-WebRequest -Uri $url -OutFile $destPath -UseBasicParsing -ErrorAction Stop
-        $downloaded++
-        $pct = [math]::Round($downloaded / $files.Count * 100)
-        $bar = ("█" * [math]::Round(30 * $pct / 100)) + ("░" * (30 - [math]::Round(30 * $pct / 100)))
-        Write-Host "`r  [$bar] $pct%  $file" -NoNewline -ForegroundColor Cyan
-    } catch {
-        $failed++
-        Write-Host "`n  ✗  Failed to download: $file" -ForegroundColor Red
-    }
-}
-
+# ── Download devclean.exe ─────────────────────────────────────────────────────
 Write-Host ""
+Write-Host "  Downloading devclean.exe from GitHub Releases..." -ForegroundColor Gray
+Write-Host "  $DOWNLOAD_URL" -ForegroundColor DarkGray
 Write-Host ""
 
-if ($failed -gt 0) {
-    Write-Host "  ⚠  $failed file(s) failed to download." -ForegroundColor Yellow
-    Write-Host "     Try again or check your connection." -ForegroundColor Gray
+# Use TLS 1.2 (required for PS5.1 to talk to GitHub)
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+try {
+    Invoke-WebRequest -Uri $DOWNLOAD_URL `
+                      -OutFile $INSTALL_PATH `
+                      -UseBasicParsing `
+                      -ErrorAction Stop
+} catch {
+    Write-Host "  [ERROR] Download failed:" -ForegroundColor Red
+    Write-Host "  $_" -ForegroundColor Red
+    Write-Host ""
+    Write-Host "  Possible reasons:" -ForegroundColor Yellow
+    Write-Host "  - No release published yet at the URL above" -ForegroundColor Gray
+    Write-Host "  - Network or firewall blocking GitHub downloads" -ForegroundColor Gray
+    Write-Host "  - Repo is still private" -ForegroundColor Gray
+    exit 1
 }
 
-Write-Host "  ✓  Downloaded $downloaded/$($files.Count) files" -ForegroundColor Green
+# ── Verify download ───────────────────────────────────────────────────────────
+if (-not (Test-Path $INSTALL_PATH)) {
+    Write-Host "  [ERROR] File missing after download." -ForegroundColor Red
+    exit 1
+}
 
-# ── Create devclean.cmd shim ──────────────────────────────────────────────────
-$cmdPath    = Join-Path $INSTALL_DIR "devclean.cmd"
-$cmdContent = "@echo off`r`npwsh -NoLogo -NonInteractive -File `"%~dp0devclean.ps1`" %*`r`n"
-[System.IO.File]::WriteAllText($cmdPath, $cmdContent, [System.Text.Encoding]::ASCII)
-Write-Host "  ✓  Created devclean.cmd shim" -ForegroundColor Green
+$exeSize = (Get-Item $INSTALL_PATH).Length
+if ($exeSize -lt 50000) {
+    Write-Host "  [ERROR] devclean.exe is too small ($exeSize bytes)." -ForegroundColor Red
+    Write-Host "  The exe was not compiled correctly. Please recompile with ps2exe." -ForegroundColor Yellow
+    Remove-Item $INSTALL_PATH -Force -ErrorAction SilentlyContinue
+    exit 1
+}
 
-# ── Create devclean.sh shim for git bash / WSL users ─────────────────────────
-$shPath    = Join-Path $INSTALL_DIR "devclean.sh"
-$shContent = "#!/bin/sh`npwsh -NoLogo -NonInteractive -File `"$(($INSTALL_DIR -replace '\\','/'))/devclean.ps1`" `"`$@`"`n"
-[System.IO.File]::WriteAllText($shPath, $shContent, [System.Text.Encoding]::UTF8)
-Write-Host "  ✓  Created devclean.sh shim (for Git Bash)" -ForegroundColor Green
+Write-Host "  [OK] Downloaded devclean.exe ($('{0:N1}' -f ($exeSize/1MB)) MB)" -ForegroundColor Green
 
-# ── Add to user PATH ──────────────────────────────────────────────────────────
+# ── Add to PATH ───────────────────────────────────────────────────────────────
 $currentPath = [System.Environment]::GetEnvironmentVariable("PATH", "User")
-
 if ($currentPath -notlike "*$INSTALL_DIR*") {
     [System.Environment]::SetEnvironmentVariable("PATH", "$currentPath;$INSTALL_DIR", "User")
-    Write-Host "  ✓  Added to PATH: $INSTALL_DIR" -ForegroundColor Green
+    Write-Host "  [OK] Added to PATH" -ForegroundColor Green
 } else {
-    Write-Host "  ●  Already in PATH" -ForegroundColor DarkGray
+    Write-Host "  [OK] Already in PATH" -ForegroundColor DarkGray
 }
-
-# Also refresh the current session's PATH so it works immediately
+# Refresh current session immediately
 $env:PATH = "$env:PATH;$INSTALL_DIR"
+
+# ── Unblock exe ───────────────────────────────────────────────────────────────
+try { Unblock-File -Path $INSTALL_PATH -ErrorAction SilentlyContinue } catch {}
+Write-Host "  [OK] Unblocked exe (SmartScreen)" -ForegroundColor Green
 
 # ── Done ──────────────────────────────────────────────────────────────────────
 Write-Host ""
-Write-Host "  ╔════════════════════════════════════════╗" -ForegroundColor Green
-Write-Host "  ║     DevClean installed successfully!   ║" -ForegroundColor Green
-Write-Host "  ╚════════════════════════════════════════╝" -ForegroundColor Green
+Write-Host "  +----------------------------------------+" -ForegroundColor Green
+Write-Host "  |   DevClean installed successfully!     |" -ForegroundColor Green
+Write-Host "  +----------------------------------------+" -ForegroundColor Green
 Write-Host ""
-Write-Host "  You can run DevClean RIGHT NOW in this terminal:" -ForegroundColor Gray
+Write-Host "  Try it right now in THIS terminal:" -ForegroundColor Gray
 Write-Host ""
 Write-Host "    devclean help" -ForegroundColor Cyan
 Write-Host "    devclean scan" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "  New terminals will also have 'devclean' available." -ForegroundColor Gray
-Write-Host ""
+if ($psVer.Major -lt 7) {
+    Write-Host "  NOTE: For best results open a 'pwsh' terminal (PowerShell 7)" -ForegroundColor Yellow
+    Write-Host "        and run devclean from there." -ForegroundColor Yellow
+    Write-Host ""
+}
 Write-Host "  To uninstall:" -ForegroundColor DarkGray
 Write-Host "    Remove-Item '$INSTALL_DIR' -Recurse -Force" -ForegroundColor DarkGray
 Write-Host ""
