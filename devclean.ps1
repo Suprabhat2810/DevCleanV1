@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-#Requires -Version 7.0
+#Requires -Version 5.1
 
 <#
 .SYNOPSIS
@@ -29,14 +29,14 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-# ── Bootstrap: resolve paths ──────────────────────────────────────────────────
-$Script:RootDir     = $PSScriptRoot
+# -- Bootstrap: resolve paths --------------------------------------------------
+$Script:RootDir     = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent ([System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName) }
 $Script:SrcDir      = Join-Path $RootDir "src"
 $Script:LibDir      = Join-Path $RootDir "lib"
 $Script:LogFile     = Join-Path $RootDir "cleanup-log.json"
 $Script:Version     = "1.0.0"
 
-# ── Dot-source all modules ────────────────────────────────────────────────────
+# -- Dot-source all modules ----------------------------------------------------
 function Import-DevCleanModules {
     $modules = @(
         "utils\Get-FolderSize.ps1",
@@ -71,7 +71,7 @@ function Import-DevCleanModules {
 
 Import-DevCleanModules
 
-# ── Main dispatcher ───────────────────────────────────────────────────────────
+# -- Main dispatcher -----------------------------------------------------------
 Show-Banner
 
 switch ($Command.ToLower()) {
@@ -127,11 +127,11 @@ switch ($Command.ToLower()) {
     }
 }
 
-# ── Help text ─────────────────────────────────────────────────────────────────
+# -- Help text -----------------------------------------------------------------
 function Show-Help {
     Write-Host ""
     Write-Host "  USAGE" -ForegroundColor Yellow
-    Write-Host "  ─────────────────────────────────────────────────" -ForegroundColor DarkGray
+    Write-Host "  -------------------------------------------------" -ForegroundColor DarkGray
     Write-Host "  devclean scan                   Scan all reclaimable storage" -ForegroundColor White
     Write-Host "  devclean cleanup                Clean all safe targets" -ForegroundColor White
     Write-Host "  devclean cleanup browser        All browser caches (auto-detected)" -ForegroundColor White
@@ -151,7 +151,7 @@ function Show-Help {
     Write-Host "  devclean help                   Show this help" -ForegroundColor White
     Write-Host ""
     Write-Host "  FLAGS" -ForegroundColor Yellow
-    Write-Host "  ─────────────────────────────────────────────────" -ForegroundColor DarkGray
+    Write-Host "  -------------------------------------------------" -ForegroundColor DarkGray
     Write-Host "  --dry-run      Simulate cleanup, no files deleted" -ForegroundColor Gray
     Write-Host "  --interactive  Confirm each category before cleanup" -ForegroundColor Gray
     Write-Host "  --permanent    Permanently delete (default: Recycle Bin)" -ForegroundColor Gray

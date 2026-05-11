@@ -13,7 +13,7 @@ function Scan-AndroidSdk {
 
     if (-not (Test-Path $sdkRoot)) { return $results }
 
-    # ── 1. System Images (largest, often multiple versions) ───────────────────
+    # -- 1. System Images (largest, often multiple versions) -------------------
     $sysImgRoot = Join-Path $sdkRoot "system-images"
     if (Test-Path $sysImgRoot) {
         foreach ($apiDir in Get-ChildItem $sysImgRoot -Directory -ErrorAction SilentlyContinue) {
@@ -37,7 +37,7 @@ function Scan-AndroidSdk {
         }
     }
 
-    # ── 2. Old NDK versions ───────────────────────────────────────────────────
+    # -- 2. Old NDK versions ---------------------------------------------------
     $ndkRoot = Join-Path $sdkRoot "ndk"
     if (Test-Path $ndkRoot) {
         foreach ($ndkVer in Get-ChildItem $ndkRoot -Directory -ErrorAction SilentlyContinue) {
@@ -56,7 +56,7 @@ function Scan-AndroidSdk {
         }
     }
 
-    # ── 3. Temp / build-cache inside SDK ─────────────────────────────────────
+    # -- 3. Temp / build-cache inside SDK -------------------------------------
     $tempPaths = @(
         @{ Sub = "temp";           Label = "SDK Temp Files";     Risk = "SAFE" }
         @{ Sub = "build-tools\staging"; Label = "Build Tools Staging"; Risk = "SAFE" }

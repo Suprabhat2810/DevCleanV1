@@ -12,9 +12,9 @@ function Show-ScanTable {
 
     Write-Host ""
     Write-Host "  SCAN RESULTS" -ForegroundColor Yellow
-    Write-Host "  ══════════════════════════════════════════════════════════" -ForegroundColor DarkGray
+    Write-Host "  ==========================================================" -ForegroundColor DarkGray
     Write-Host ("  {0,-8}  {1,-28}  {2,10}  {3}" -f "RISK", "TARGET", "SIZE", "PATH") -ForegroundColor DarkGray
-    Write-Host "  ──────────────────────────────────────────────────────────" -ForegroundColor DarkGray
+    Write-Host "  ----------------------------------------------------------" -ForegroundColor DarkGray
 
     foreach ($r in $Results | Sort-Object RiskLevel) {
         $riskColor = Get-RiskColor $r.RiskLevel
@@ -29,7 +29,7 @@ function Show-ScanTable {
         Write-Host $path -ForegroundColor DarkGray
     }
 
-    Write-Host "  ──────────────────────────────────────────────────────────" -ForegroundColor DarkGray
+    Write-Host "  ----------------------------------------------------------" -ForegroundColor DarkGray
     Write-Host ("  Total Recoverable Space: {0}" -f (Format-FileSize $totalBytes)) -ForegroundColor Green
     Write-Host ""
 }
@@ -44,20 +44,20 @@ function Show-CategoryHeader {
 
     $color = Get-RiskColor $RiskLevel
     Write-Host ""
-    Write-Host "  ┌─────────────────────────────────────────────────────┐" -ForegroundColor DarkGray
-    Write-Host "  │  " -NoNewline -ForegroundColor DarkGray
+    Write-Host "  +-----------------------------------------------------+" -ForegroundColor DarkGray
+    Write-Host "  |  " -NoNewline -ForegroundColor DarkGray
     Write-Host ("[{0} RISK]" -f $RiskLevel).PadRight(12) -NoNewline -ForegroundColor $color
     Write-Host " $Name" -NoNewline -ForegroundColor White
     Write-Host "".PadRight([math]::Max(0, 38 - $Name.Length)) -NoNewline
-    Write-Host "│" -ForegroundColor DarkGray
-    Write-Host "  │  Recoverable: " -NoNewline -ForegroundColor DarkGray
+    Write-Host "|" -ForegroundColor DarkGray
+    Write-Host "  |  Recoverable: " -NoNewline -ForegroundColor DarkGray
     Write-Host (Format-FileSize $SizeBytes).PadRight(47) -NoNewline -ForegroundColor Cyan
-    Write-Host "│" -ForegroundColor DarkGray
-    Write-Host "  │  Path:        " -NoNewline -ForegroundColor DarkGray
+    Write-Host "|" -ForegroundColor DarkGray
+    Write-Host "  |  Path:        " -NoNewline -ForegroundColor DarkGray
     $shortPath = if ($Path.Length -gt 47) { "..." + $Path.Substring($Path.Length - 44) } else { $Path.PadRight(47) }
     Write-Host $shortPath -NoNewline -ForegroundColor Gray
-    Write-Host "│" -ForegroundColor DarkGray
-    Write-Host "  └─────────────────────────────────────────────────────┘" -ForegroundColor DarkGray
+    Write-Host "|" -ForegroundColor DarkGray
+    Write-Host "  +-----------------------------------------------------+" -ForegroundColor DarkGray
 }
 
 function Get-RiskColor {
@@ -75,12 +75,12 @@ function Show-RecoverySummary {
     param([long]$TotalBytes, [int]$ItemCount, [int]$Duration)
 
     Write-Host ""
-    Write-Host "  ╔═══════════════════════════════════════════╗" -ForegroundColor Green
-    Write-Host "  ║           CLEANUP COMPLETE                ║" -ForegroundColor Green
-    Write-Host "  ╠═══════════════════════════════════════════╣" -ForegroundColor Green
-    Write-Host ("  ║  Reclaimed:  {0,-30}║" -f (Format-FileSize $TotalBytes)) -ForegroundColor Green
-    Write-Host ("  ║  Items:      {0,-30}║" -f "$ItemCount targets cleaned") -ForegroundColor Green
-    Write-Host ("  ║  Duration:   {0,-30}║" -f "${Duration}s") -ForegroundColor Green
-    Write-Host "  ╚═══════════════════════════════════════════╝" -ForegroundColor Green
+    Write-Host "  +===========================================+" -ForegroundColor Green
+    Write-Host "  |           CLEANUP COMPLETE                |" -ForegroundColor Green
+    Write-Host "  +===========================================+" -ForegroundColor Green
+    Write-Host ("  |  Reclaimed:  {0,-30}|" -f (Format-FileSize $TotalBytes)) -ForegroundColor Green
+    Write-Host ("  |  Items:      {0,-30}|" -f "$ItemCount targets cleaned") -ForegroundColor Green
+    Write-Host ("  |  Duration:   {0,-30}|" -f "${Duration}s") -ForegroundColor Green
+    Write-Host "  +===========================================+" -ForegroundColor Green
     Write-Host ""
 }

@@ -24,7 +24,7 @@ function Send-ToRecycleBin {
         }
     }
 
-    # ── Try Microsoft.VisualBasic (most reliable) ─────────────────────────────
+    # -- Try Microsoft.VisualBasic (most reliable) -----------------------------
     try {
         Add-Type -AssemblyName Microsoft.VisualBasic -ErrorAction SilentlyContinue
 
@@ -48,7 +48,7 @@ function Send-ToRecycleBin {
         Write-Verbose "VB recycle bin failed: $_ - trying Shell32"
     }
 
-    # ── Fallback: Shell32 COM ─────────────────────────────────────────────────
+    # -- Fallback: Shell32 COM -------------------------------------------------
     try {
         $shell  = New-Object -ComObject Shell.Application
         $parent = Split-Path $Path -Parent
@@ -64,7 +64,7 @@ function Send-ToRecycleBin {
         Write-Verbose "Shell32 recycle bin failed: $_"
     }
 
-    # ── Last resort: hard delete with warning ──────────────────────────────────
+    # -- Last resort: hard delete with warning ----------------------------------
     try {
         Show-Warning "Recycle Bin not available for: $Path - using permanent delete."
         Remove-Item -Path $Path -Recurse -Force -ErrorAction Stop

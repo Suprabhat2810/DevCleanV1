@@ -231,7 +231,7 @@ function Invoke-Undo {
 
     Write-Host ""
     Write-Host "  LAST CLEANUP SESSION" -ForegroundColor Yellow
-    Write-Host "  ══════════════════════════════════════════════════════════" -ForegroundColor DarkGray
+    Write-Host "  ==========================================================" -ForegroundColor DarkGray
     Write-Host "  Timestamp:   $($entries.timestamp)" -ForegroundColor Gray
     Write-Host "  Items:       $($entries.entries.Count)" -ForegroundColor Gray
     Write-Host "  Reclaimed:   $($entries.totalReclaimed)" -ForegroundColor Cyan
@@ -246,7 +246,7 @@ function Invoke-Undo {
 
     if ($entries.mode -eq "recycle-bin") {
         Write-Host ""
-        Write-Host "  ℹ  Files were moved to the Recycle Bin." -ForegroundColor Cyan
+        Write-Host "  [INFO]  Files were moved to the Recycle Bin." -ForegroundColor Cyan
         Write-Host "     Open Recycle Bin in Explorer to restore individual items." -ForegroundColor DarkGray
     } else {
         Write-Host ""

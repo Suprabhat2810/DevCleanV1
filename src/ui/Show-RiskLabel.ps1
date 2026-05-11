@@ -13,10 +13,10 @@ function Show-RiskLabel {
 
 function Show-DryRunBanner {
     Write-Host ""
-    Write-Host "  ╔══════════════════════════════════════════╗" -ForegroundColor Yellow
-    Write-Host "  ║          DRY RUN MODE ENABLED            ║" -ForegroundColor Yellow
-    Write-Host "  ║     No files will be deleted.            ║" -ForegroundColor Yellow
-    Write-Host "  ╚══════════════════════════════════════════╝" -ForegroundColor Yellow
+    Write-Host "  +==========================================+" -ForegroundColor Yellow
+    Write-Host "  |          DRY RUN MODE ENABLED            |" -ForegroundColor Yellow
+    Write-Host "  |     No files will be deleted.            |" -ForegroundColor Yellow
+    Write-Host "  +==========================================+" -ForegroundColor Yellow
     Write-Host ""
 }
 
@@ -29,7 +29,7 @@ function Show-ConfirmPrompt {
 
     $color = Get-RiskColor $RiskLevel
     Write-Host ""
-    Write-Host "  ──────────────────────────────────────────" -ForegroundColor DarkGray
+    Write-Host "  ------------------------------------------" -ForegroundColor DarkGray
     Write-Host "  Target:     $Category" -ForegroundColor White
     Write-Host "  Recoverable: $(Format-FileSize $SizeBytes)" -ForegroundColor Cyan
     Write-Host "  Risk:       " -NoNewline -ForegroundColor Gray
@@ -47,7 +47,7 @@ function Show-Warning {
     param([string]$Message)
 
     Write-Host ""
-    Write-Host "  ⚠  WARNING" -ForegroundColor Yellow
+    Write-Host "  [WARN]  WARNING" -ForegroundColor Yellow
     Write-Host "  $Message" -ForegroundColor Yellow
     Write-Host ""
 }
@@ -56,18 +56,18 @@ function Show-Error {
     param([string]$Message)
 
     Write-Host ""
-    Write-Host "  ✗  ERROR: $Message" -ForegroundColor Red
+    Write-Host "  [ERR]  ERROR: $Message" -ForegroundColor Red
     Write-Host ""
 }
 
 function Show-Success {
     param([string]$Message)
 
-    Write-Host "  ✓  $Message" -ForegroundColor Green
+    Write-Host "  [OK]  $Message" -ForegroundColor Green
 }
 
 function Show-Info {
     param([string]$Message)
 
-    Write-Host "  ●  $Message" -ForegroundColor Cyan
+    Write-Host "  *  $Message" -ForegroundColor Cyan
 }

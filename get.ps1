@@ -13,7 +13,7 @@ $ErrorActionPreference = "Stop"
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
 
-# ── Config ────────────────────────────────────────────────────────────────────
+# -- Config --------------------------------------------------------------------
 $GITHUB_USER  = "Suprabhat2810"
 $REPO_NAME    = "DevCleanV1"
 $EXE_NAME     = "devclean.exe"
@@ -21,7 +21,7 @@ $INSTALL_DIR  = Join-Path $env:USERPROFILE ".devclean"
 $INSTALL_PATH = Join-Path $INSTALL_DIR $EXE_NAME
 $DOWNLOAD_URL = "https://github.com/$GITHUB_USER/$REPO_NAME/releases/latest/download/$EXE_NAME"
 
-# ── Banner ────────────────────────────────────────────────────────────────────
+# -- Banner --------------------------------------------------------------------
 Write-Host ""
 Write-Host "  +----------------------------------------+" -ForegroundColor Cyan
 Write-Host "  |        DevClean Installer              |" -ForegroundColor Cyan
@@ -29,7 +29,7 @@ Write-Host "  |   Developed by Suprabhat Chowhan       |" -ForegroundColor Cyan
 Write-Host "  +----------------------------------------+" -ForegroundColor Cyan
 Write-Host ""
 
-# ── Pre-flight: warn PS5.1 users ──────────────────────────────────────────────
+# -- Pre-flight: warn PS5.1 users ----------------------------------------------
 $psVer = $PSVersionTable.PSVersion
 Write-Host "  [CHECK] PowerShell $($psVer.Major).$($psVer.Minor) detected" -ForegroundColor Cyan
 
@@ -44,14 +44,14 @@ if ($psVer.Major -lt 7) {
     Write-Host ""
 }
 
-# ── Windows check ─────────────────────────────────────────────────────────────
+# -- Windows check -------------------------------------------------------------
 if ($PSVersionTable.PSVersion.Major -ge 6 -and -not $IsWindows) {
     Write-Host "  [ERROR] DevClean is Windows-only." -ForegroundColor Red
     exit 1
 }
 Write-Host "  [CHECK] Windows detected" -ForegroundColor Cyan
 
-# ── Internet check ────────────────────────────────────────────────────────────
+# -- Internet check ------------------------------------------------------------
 try {
     $null = Invoke-WebRequest -Uri "https://github.com" -UseBasicParsing -TimeoutSec 8 -ErrorAction Stop
     Write-Host "  [CHECK] Internet connection OK" -ForegroundColor Cyan
@@ -60,14 +60,14 @@ try {
     exit 1
 }
 
-# ── Create install directory ──────────────────────────────────────────────────
+# -- Create install directory --------------------------------------------------
 Write-Host ""
 Write-Host "  Install location: $INSTALL_DIR" -ForegroundColor Gray
 if (-not (Test-Path $INSTALL_DIR)) {
     New-Item -ItemType Directory -Path $INSTALL_DIR -Force | Out-Null
 }
 
-# ── Download devclean.exe ─────────────────────────────────────────────────────
+# -- Download devclean.exe -----------------------------------------------------
 Write-Host ""
 Write-Host "  Downloading devclean.exe from GitHub Releases..." -ForegroundColor Gray
 Write-Host "  $DOWNLOAD_URL" -ForegroundColor DarkGray
@@ -92,14 +92,14 @@ try {
     exit 1
 }
 
-# ── Verify download ───────────────────────────────────────────────────────────
+# -- Verify download -----------------------------------------------------------
 if (-not (Test-Path $INSTALL_PATH)) {
     Write-Host "  [ERROR] File missing after download." -ForegroundColor Red
     exit 1
 }
 
 $exeSize = (Get-Item $INSTALL_PATH).Length
-if ($exeSize -lt 50000) {
+if ($exeSize -lt 5000) {
     Write-Host "  [ERROR] devclean.exe is too small ($exeSize bytes)." -ForegroundColor Red
     Write-Host "  The exe was not compiled correctly. Please recompile with ps2exe." -ForegroundColor Yellow
     Remove-Item $INSTALL_PATH -Force -ErrorAction SilentlyContinue
@@ -108,7 +108,7 @@ if ($exeSize -lt 50000) {
 
 Write-Host "  [OK] Downloaded devclean.exe ($('{0:N1}' -f ($exeSize/1MB)) MB)" -ForegroundColor Green
 
-# ── Add to PATH ───────────────────────────────────────────────────────────────
+# -- Add to PATH ---------------------------------------------------------------
 $currentPath = [System.Environment]::GetEnvironmentVariable("PATH", "User")
 if ($currentPath -notlike "*$INSTALL_DIR*") {
     [System.Environment]::SetEnvironmentVariable("PATH", "$currentPath;$INSTALL_DIR", "User")
@@ -119,11 +119,11 @@ if ($currentPath -notlike "*$INSTALL_DIR*") {
 # Refresh current session immediately
 $env:PATH = "$env:PATH;$INSTALL_DIR"
 
-# ── Unblock exe ───────────────────────────────────────────────────────────────
+# -- Unblock exe ---------------------------------------------------------------
 try { Unblock-File -Path $INSTALL_PATH -ErrorAction SilentlyContinue } catch {}
 Write-Host "  [OK] Unblocked exe (SmartScreen)" -ForegroundColor Green
 
-# ── Done ──────────────────────────────────────────────────────────────────────
+# -- Done ----------------------------------------------------------------------
 Write-Host ""
 Write-Host "  +----------------------------------------+" -ForegroundColor Green
 Write-Host "  |   DevClean installed successfully!     |" -ForegroundColor Green

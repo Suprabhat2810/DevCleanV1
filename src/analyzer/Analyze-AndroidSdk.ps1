@@ -7,10 +7,10 @@ function Invoke-AnalyzeSdk {
 
     Write-Host ""
     Write-Host "  ANDROID SDK DEPENDENCY ANALYSIS" -ForegroundColor Yellow
-    Write-Host "  ══════════════════════════════════════════════════════════" -ForegroundColor DarkGray
+    Write-Host "  ==========================================================" -ForegroundColor DarkGray
     Write-Host ""
 
-    # ── 1. Find SDK root ─────────────────────────────────────────────────────
+    # -- 1. Find SDK root -----------------------------------------------------
     $sdkRoot = $env:ANDROID_HOME
     if (-not $sdkRoot) { $sdkRoot = $env:ANDROID_SDK_ROOT }
     if (-not $sdkRoot) { $sdkRoot = Join-Path $env:LOCALAPPDATA "Android\Sdk" }
@@ -22,7 +22,7 @@ function Invoke-AnalyzeSdk {
 
     Show-Info "SDK Root: $sdkRoot"
 
-    # ── 2. Get installed NDK versions ────────────────────────────────────────
+    # -- 2. Get installed NDK versions ----------------------------------------
     $ndkRoot       = Join-Path $sdkRoot "ndk"
     $installedNdks = @()
 
@@ -33,7 +33,7 @@ function Invoke-AnalyzeSdk {
         Show-Info "No NDK versions installed."
     }
 
-    # ── 3. Scan build.gradle / build.gradle.kts files ────────────────────────
+    # -- 3. Scan build.gradle / build.gradle.kts files ------------------------
     Write-Host ""
     Show-Info "Scanning build.gradle files for NDK references..."
 
@@ -105,7 +105,7 @@ function Invoke-AnalyzeSdk {
 
     Write-Host ""
     Write-Host "  PROJECT SCAN RESULTS" -ForegroundColor Yellow
-    Write-Host "  ─────────────────────────────────────────────" -ForegroundColor DarkGray
+    Write-Host "  ---------------------------------------------" -ForegroundColor DarkGray
     Write-Host "  build.gradle files scanned: $gradleFilesFound" -ForegroundColor Gray
     Write-Host "  NDK versions referenced:    $($referencedNdks.Count)" -ForegroundColor Gray
     if ($referencedSdks.Count -gt 0) {
@@ -113,10 +113,10 @@ function Invoke-AnalyzeSdk {
     }
     Write-Host ""
 
-    # ── 4. Cross-reference installed vs referenced ────────────────────────────
+    # -- 4. Cross-reference installed vs referenced ----------------------------
     if ($installedNdks.Count -gt 0) {
         Write-Host "  NDK ANALYSIS" -ForegroundColor Yellow
-        Write-Host "  ─────────────────────────────────────────────" -ForegroundColor DarkGray
+        Write-Host "  ---------------------------------------------" -ForegroundColor DarkGray
 
         foreach ($ndk in $installedNdks) {
             $isReferenced = $false
@@ -132,11 +132,11 @@ function Invoke-AnalyzeSdk {
             $ndkSize = Get-FolderSize -Path $ndkPath
 
             if ($isReferenced) {
-                Write-Host "  ✓  NDK $ndk" -NoNewline -ForegroundColor Green
+                Write-Host "  [OK]  NDK $ndk" -NoNewline -ForegroundColor Green
                 Write-Host " - $(Format-FileSize $ndkSize)" -NoNewline -ForegroundColor Gray
                 Write-Host " - Referenced by active projects. Keep." -ForegroundColor DarkGray
             } else {
-                Write-Host "  ⚠  NDK $ndk" -NoNewline -ForegroundColor Yellow
+                Write-Host "  [WARN]  NDK $ndk" -NoNewline -ForegroundColor Yellow
                 Write-Host " - $(Format-FileSize $ndkSize)" -NoNewline -ForegroundColor Gray
                 Write-Host " - Not referenced. Safe to remove." -ForegroundColor DarkGray
             }
@@ -144,10 +144,10 @@ function Invoke-AnalyzeSdk {
         Write-Host ""
     }
 
-    # ── 5. Show project references ────────────────────────────────────────────
+    # -- 5. Show project references --------------------------------------------
     if ($projectsFound.Count -gt 0) {
         Write-Host "  ACTIVE NDK REFERENCES FOUND" -ForegroundColor Yellow
-        Write-Host "  ─────────────────────────────────────────────" -ForegroundColor DarkGray
+        Write-Host "  ---------------------------------------------" -ForegroundColor DarkGray
         foreach ($p in $projectsFound | Select-Object -First 10) {
             $shortPath = $p.GradleFile -replace [regex]::Escape($env:USERPROFILE), "~"
             Write-Host "  NDK $($p.Value.PadRight(12))" -NoNewline -ForegroundColor Cyan

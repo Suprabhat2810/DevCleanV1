@@ -7,12 +7,12 @@ function Scan-Browsers {
         Only scans browsers that are actually installed - skips missing ones.
     #>
 
-    # ── Browser profile definitions ───────────────────────────────────────────
+    # -- Browser profile definitions -------------------------------------------
     # Each entry: Name, BasePath (relative to $env:LOCALAPPDATA or $env:APPDATA),
     #             ProfileFolder, CacheFolders[], BaseRoot
     $browsers = @(
 
-        # ── Chromium-family ───────────────────────────────────────────────────
+        # -- Chromium-family ---------------------------------------------------
         @{
             Name          = "Google Chrome"
             BaseRoot      = "LOCAL"
@@ -134,7 +134,7 @@ function Scan-Browsers {
             Category      = "browser"
         }
 
-        # ── Firefox-family ────────────────────────────────────────────────────
+        # -- Firefox-family ----------------------------------------------------
         @{
             Name          = "Mozilla Firefox"
             BaseRoot      = "APPDATA"
@@ -191,7 +191,7 @@ function Scan-Browsers {
             IsFirefox     = $true
         }
 
-        # ── Standalone caches ─────────────────────────────────────────────────
+        # -- Standalone caches -------------------------------------------------
         @{
             Name          = "Internet Explorer"
             BaseRoot      = "LOCAL"
@@ -204,7 +204,7 @@ function Scan-Browsers {
         }
     )
 
-    # ── Resolution helpers ────────────────────────────────────────────────────
+    # -- Resolution helpers ----------------------------------------------------
     $results = @()
     $seen    = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
 
@@ -274,7 +274,7 @@ function Scan-Browsers {
     return $results
 }
 
-# ── Keep Scan-Chrome as a thin wrapper for backwards compatibility ─────────────
+# -- Keep Scan-Chrome as a thin wrapper for backwards compatibility -------------
 function Scan-Chrome {
     return Scan-Browsers | Where-Object { $_.BrowserName -eq "Google Chrome" }
 }
