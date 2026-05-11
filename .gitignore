@@ -1,0 +1,19 @@
+# Build artifacts
+*.exe
+*.dll
+devclean-merged.ps1
+
+# Runtime
+cleanup-log.json
+.devclean/
+lib/
+
+# Source (kept in private repo)
+src/
+build.ps1
+devclean.ps1
+devclean.psd1
+install.ps1
+
+# IDE
+.vscode/
