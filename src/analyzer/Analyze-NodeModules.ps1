@@ -45,7 +45,7 @@ function Invoke-AnalyzeNode {
         } else {
             $risk       = "HIGH"
             $riskReason = "Project recently active ($age days ago)"
-            $recommendation = "Keep — project is active"
+            $recommendation = "Keep - project is active"
         }
 
         $analyzed += [PSCustomObject]@{
@@ -82,7 +82,7 @@ function Invoke-AnalyzeNode {
         if ($a.HasPackageJson) { Write-Host " Present" -ForegroundColor Green } else { Write-Host " Missing" -ForegroundColor Red }
         Write-Host "  │  Risk:        " -NoNewline -ForegroundColor DarkGray
         Write-Host "[$($a.RiskLevel)]" -NoNewline -ForegroundColor $riskColor
-        Write-Host " — $($a.RiskReason)" -ForegroundColor DarkGray
+        Write-Host " - $($a.RiskReason)" -ForegroundColor DarkGray
         Write-Host "  │  Verdict:     " -NoNewline -ForegroundColor DarkGray
         Write-Host $a.Recommendation -ForegroundColor $(if ($a.RiskLevel -eq "HIGH") { "Yellow" } else { "Green" })
         Write-Host "  └──────────────────────────────────────────────────────" -ForegroundColor DarkGray

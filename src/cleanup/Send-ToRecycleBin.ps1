@@ -45,7 +45,7 @@ function Send-ToRecycleBin {
         }
         return $true
     } catch {
-        Write-Verbose "VB recycle bin failed: $_ — trying Shell32"
+        Write-Verbose "VB recycle bin failed: $_ - trying Shell32"
     }
 
     # ── Fallback: Shell32 COM ─────────────────────────────────────────────────
@@ -66,7 +66,7 @@ function Send-ToRecycleBin {
 
     # ── Last resort: hard delete with warning ──────────────────────────────────
     try {
-        Show-Warning "Recycle Bin not available for: $Path — using permanent delete."
+        Show-Warning "Recycle Bin not available for: $Path - using permanent delete."
         Remove-Item -Path $Path -Recurse -Force -ErrorAction Stop
         return $true
     } catch {

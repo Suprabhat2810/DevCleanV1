@@ -8,7 +8,7 @@ function Show-RiskLabel {
 
     Write-Host "  Risk Level: " -NoNewline -ForegroundColor Gray
     Write-Host "[$RiskLevel]" -NoNewline -ForegroundColor $color
-    Write-Host "  — $Reason" -ForegroundColor DarkGray
+    Write-Host "  - $Reason" -ForegroundColor DarkGray
 }
 
 function Show-DryRunBanner {

@@ -52,12 +52,13 @@ function Invoke-AnalyzeSdk {
         if (-not (Test-Path $root)) { continue }
 
         try {
-            $opts = [System.IO.EnumerationOptions]::new()
-            $opts.RecurseSubdirectories = $true
-            $opts.IgnoreInaccessible    = $true
-            $opts.MaxRecursionDepth     = 10
+            # PS5.1 compatible - use Get-ChildItem instead of EnumerationOptions
+            $gradleFiles = Get-ChildItem -Path $root -Filter "build.gradle" -Recurse `
+                               -ErrorAction SilentlyContinue -Force |
+                           Select-Object -First 500
 
-            foreach ($gradleFile in [System.IO.Directory]::EnumerateFiles($root, "build.gradle", $opts)) {
+            foreach ($gradleFileInfo in $gradleFiles) {
+                $gradleFile = $gradleFileInfo.FullName
                 $gradleFilesFound++
                 $content = Get-Content $gradleFile -Raw -ErrorAction SilentlyContinue
                 if (-not $content) { continue }
@@ -84,9 +85,13 @@ function Invoke-AnalyzeSdk {
             }
 
             # Also scan .kts files
-            foreach ($ktsFile in [System.IO.Directory]::EnumerateFiles($root, "build.gradle.kts", $opts)) {
+            $ktsFiles = Get-ChildItem -Path $root -Filter "build.gradle.kts" -Recurse `
+                            -ErrorAction SilentlyContinue -Force |
+                        Select-Object -First 200
+
+            foreach ($ktsFileInfo in $ktsFiles) {
                 $gradleFilesFound++
-                $content = Get-Content $ktsFile -Raw -ErrorAction SilentlyContinue
+                $content = Get-Content $ktsFileInfo.FullName -Raw -ErrorAction SilentlyContinue
                 if (-not $content) { continue }
 
                 $ndkMatches = [regex]::Matches($content, 'ndkVersion\s*=\s*["\x27]([\d.]+)["\x27]')
@@ -128,12 +133,12 @@ function Invoke-AnalyzeSdk {
 
             if ($isReferenced) {
                 Write-Host "  ✓  NDK $ndk" -NoNewline -ForegroundColor Green
-                Write-Host " — $(Format-FileSize $ndkSize)" -NoNewline -ForegroundColor Gray
-                Write-Host " — Referenced by active projects. Keep." -ForegroundColor DarkGray
+                Write-Host " - $(Format-FileSize $ndkSize)" -NoNewline -ForegroundColor Gray
+                Write-Host " - Referenced by active projects. Keep." -ForegroundColor DarkGray
             } else {
                 Write-Host "  ⚠  NDK $ndk" -NoNewline -ForegroundColor Yellow
-                Write-Host " — $(Format-FileSize $ndkSize)" -NoNewline -ForegroundColor Gray
-                Write-Host " — Not referenced. Safe to remove." -ForegroundColor DarkGray
+                Write-Host " - $(Format-FileSize $ndkSize)" -NoNewline -ForegroundColor Gray
+                Write-Host " - Not referenced. Safe to remove." -ForegroundColor DarkGray
             }
         }
         Write-Host ""

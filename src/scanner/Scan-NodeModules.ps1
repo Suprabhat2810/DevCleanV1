@@ -22,33 +22,34 @@ function Scan-NodeModules {
         if (-not (Test-Path $root)) { continue }
 
         try {
-            $opts = [System.IO.EnumerationOptions]::new()
-            $opts.RecurseSubdirectories = $true
-            $opts.IgnoreInaccessible    = $true
-            $opts.MaxRecursionDepth     = 8
+            $dirs = Get-ChildItem -Path $root -Filter "node_modules" -Recurse -Directory `
+                        -ErrorAction SilentlyContinue -Force |
+                    Select-Object -First 200
 
-            foreach ($dir in [System.IO.Directory]::EnumerateDirectories($root, "node_modules", $opts)) {
-
-                # Skip nested node_modules (node_modules inside node_modules)
+            foreach ($dirInfo in $dirs) {
+                $dir    = $dirInfo.FullName
                 $parent = Split-Path $dir -Parent
+
+                # Skip nested node_modules
                 if ($parent -match "node_modules") { continue }
 
                 # Deduplicate
                 if (-not $seen.Add($dir)) { continue }
 
-                $size    = Get-FolderSize -Path $dir
-                $project = Split-Path $parent -Leaf
-                $lastMod = (Get-Item $parent -ErrorAction SilentlyContinue)?.LastWriteTime
+                $size       = Get-FolderSize -Path $dir
+                $project    = Split-Path $parent -Leaf
+                $parentItem = Get-Item $parent -ErrorAction SilentlyContinue
+                $lastMod    = if ($parentItem) { $parentItem.LastWriteTime } else { $null }
 
                 $results += [PSCustomObject]@{
-                    Name       = "node_modules ($project)"
-                    Path       = $dir
-                    SizeBytes  = $size
-                    RiskLevel  = "LOW"
-                    RiskReason = "Source code and package.json are untouched. Run npm install to restore."
-                    Category   = "node"
-                    Scanner    = "node"
-                    ProjectDir = $parent
+                    Name         = "node_modules ($project)"
+                    Path         = $dir
+                    SizeBytes    = $size
+                    RiskLevel    = "LOW"
+                    RiskReason   = "Source code and package.json are untouched. Run npm install to restore."
+                    Category     = "node"
+                    Scanner      = "node"
+                    ProjectDir   = $parent
                     LastModified = $lastMod
                 }
             }

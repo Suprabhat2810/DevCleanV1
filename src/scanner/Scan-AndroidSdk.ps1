@@ -47,7 +47,7 @@ function Scan-AndroidSdk {
                 Path       = $ndkVer.FullName
                 SizeBytes  = $size
                 RiskLevel  = "MEDIUM"
-                RiskReason = "NDK version — check if referenced by active projects before removing."
+                RiskReason = "NDK version - check if referenced by active projects before removing."
                 Category   = "sdk"
                 Scanner    = "sdk"
                 SubType    = "ndk"

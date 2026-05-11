@@ -4,7 +4,7 @@ function Show-EducationalNote {
     Write-Host ""
     switch ($Target.ToLower()) {
 
-        "chrome" -or "browser" {
+        { $_ -eq "chrome" -or $_ -eq "browser" } {
             Write-Host "  ┌─ What is Browser Cache? ────────────────────────────────┐" -ForegroundColor DarkGray
             Write-Host "  │" -ForegroundColor DarkGray
             Write-Host "  │  Browsers store cached web pages, images, scripts,     " -ForegroundColor Gray

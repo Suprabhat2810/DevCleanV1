@@ -4,7 +4,7 @@ function Scan-Browsers {
         Scans cache directories for ALL major browsers installed on the system.
         Detects: Chrome, Edge, Brave, Firefox, Opera, Vivaldi, Arc, Waterfox,
                  LibreWolf, Thorium, Chromium, Samsung Internet, Yandex, Zen.
-        Only scans browsers that are actually installed — skips missing ones.
+        Only scans browsers that are actually installed - skips missing ones.
     #>
 
     # ── Browser profile definitions ───────────────────────────────────────────
@@ -217,9 +217,9 @@ function Scan-Browsers {
         $profileDirs = @()
 
         if ($browser.ProfileGlob -contains ".") {
-            # Flat layout (Opera, IE) — base path IS the profile
+            # Flat layout (Opera, IE) - base path IS the profile
             if (Test-Path $basePath) { $profileDirs += $basePath }
-        } elseif ($browser.ContainsKey("IsFirefox") -and $browser.IsFirefox) {
+        } elseif ($browser.IsFirefox -eq $true) {
             # Firefox profiles are named like "abc12345.default-release"
             if (Test-Path $basePath) {
                 $profileDirs += (Get-ChildItem $basePath -Directory -ErrorAction SilentlyContinue).FullName

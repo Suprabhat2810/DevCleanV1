@@ -123,7 +123,7 @@ switch ($Command.ToLower()) {
     default {
         Write-Host ""
         Write-Host "  Unknown command: '$Command'" -ForegroundColor Red
-        Write-Host "  Run 'devclean help' for usage." -ForegroundColor Gray
+        Write-Host "  Run devclean help for usage." -ForegroundColor Gray
     }
 }
 
@@ -143,7 +143,7 @@ function Show-Help {
     Write-Host "  devclean cleanup node           node_modules only" -ForegroundColor White
     Write-Host "  devclean cleanup sdk            Android SDK temp files" -ForegroundColor White
     Write-Host "  devclean cleanup temp           Windows temp files" -ForegroundColor White
-    Write-Host "  devclean cleanup --dry-run      Preview — no deletion" -ForegroundColor White
+    Write-Host "  devclean cleanup --dry-run      Preview - no deletion" -ForegroundColor White
     Write-Host "  devclean cleanup --interactive  Step-by-step guided cleanup" -ForegroundColor White
     Write-Host "  devclean analyze sdk            Analyze Android SDK usage" -ForegroundColor White
     Write-Host "  devclean analyze node           Analyze node_modules activity" -ForegroundColor White
